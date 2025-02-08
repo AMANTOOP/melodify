@@ -10,7 +10,8 @@ export function useJioSaavnAPI() {
     setError(null)
 
     try {
-      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`)
+      const timestamp = new Date().getTime(); // Unique query every time
+      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}&t=${timestamp}`)
       if (!response.ok) {
         throw new Error("Failed to fetch song")
       }
