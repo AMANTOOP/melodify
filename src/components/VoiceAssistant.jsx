@@ -49,7 +49,7 @@ export default function VoiceAssistant() {
         className="w-12 h-12">
         {isListening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
       </Button>
-      <p className="text-lg text-center">{query || "Say a song name, artist, or album..."}</p>
+      <p className="text-lg text-center">{query || "*(Experimental features)"}</p>
       {isLoading && <p>Searching...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {songData && (
