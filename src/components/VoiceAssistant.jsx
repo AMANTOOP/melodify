@@ -5,7 +5,7 @@ import { Mic, MicOff, Play, Pause } from "lucide-react"
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition"
 import { useJioSaavnAPI } from "@/hooks/useJioSaavnAPI"
 import { useAudioPlayer } from "@/hooks/useAudioPlayer"
-import Image from "next/image"
+import SongsList from "@/app/_components/songsList";
 
 export default function VoiceAssistant() {
   const [query, setQuery] = useState("")
@@ -19,17 +19,17 @@ export default function VoiceAssistant() {
   useEffect(() => {
     if (transcript) {
       setQuery(transcript)
-      handleSearch(transcript)
+      // handleSearch(transcript)
     }
   }, [transcript])
 
-  const handleSearch = useCallback(async (searchQuery) => {
-    const result = await searchSong(searchQuery)
-    if (result) {
-      setSongData(result)
-      setAudioSrc(result.url)
-    }
-  }, [searchSong, setAudioSrc])
+  // const handleSearch = useCallback(async (searchQuery) => {
+  //   const result = await searchSong(searchQuery)
+  //   if (result) {
+  //     setSongData(result)
+  //     setAudioSrc(result.url)
+  //   }
+  // }, [searchSong, setAudioSrc])
 
   const toggleListening = () => {
     if (isListening) {
@@ -41,7 +41,7 @@ export default function VoiceAssistant() {
   }
 
   return (
-    (<div className="flex flex-col items-center space-y-4 w-full max-w-md">
+    (<div className="flex flex-col items-center space-y-4 w-full bg-gray-100 min-h-[500px] max-h-[80vh] overflow-y-auto">
       <Button
         onClick={toggleListening}
         variant="outline"
@@ -52,21 +52,8 @@ export default function VoiceAssistant() {
       <p className="text-lg text-center">{query || "*(Experimental features)"}</p>
       {isLoading && <p>Searching...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      {songData && (
-        <div className="w-full bg-white rounded-lg shadow-md p-4 space-y-4">
-          <Image
-            src={songData.image || "/placeholder.svg"}
-            alt={songData.name}
-            width={200}
-            height={200}
-            className="mx-auto rounded-md" />
-          <h2 className="text-xl font-bold text-center">{songData.name}</h2>
-          <p className="text-center text-gray-600">{songData.primaryArtists}</p>
-          <Button onClick={togglePlayPause} variant="outline" className="w-full">
-            {isPlaying ? <Pause className="h-6 w-6 mr-2" /> : <Play className="h-6 w-6 mr-2" />}
-            {isPlaying ? "Pause" : "Play"}
-          </Button>
-        </div>
+      {query && (
+        <SongsList apiUrl="https://iodify-dev-backend.onrender.com/api" externalQuery={query} />
       )}
     </div>)
   );

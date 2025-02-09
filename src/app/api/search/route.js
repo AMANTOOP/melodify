@@ -12,10 +12,10 @@ export async function GET(request) {
   }
 
   try {
-    const apiUrl = `https://saavn.dev/api/search/songs?query=${encodeURIComponent(
+    const apiUrl = `https://iodify-dev-backend.onrender.com/api/global-search?query=${encodeURIComponent(
       query
     )}`;
-    // console.log("🔍 Fetching from JioSaavn API:", apiUrl);
+    console.log("🔍 Fetching from JioSaavn API:", apiUrl);
 
     const response = await fetch(apiUrl, {
       headers: { "User-Agent": "Mozilla/5.0" }, // Prevents blocking
@@ -30,12 +30,7 @@ export async function GET(request) {
     // console.log("🔍 JioSaavn API Response:", JSON.stringify(data, null, 2)); // Debugging
 
     // Check if response structure is correct
-    if (
-      !data ||
-      typeof data !== "object" ||
-      !data.data ||
-      !Array.isArray(data.data.results)
-    ) {
+    if (!data || typeof data !== "object") {
       const nextRes = NextResponse.json(data);
       nextRes.headers.set(
         "Cache-Control",
@@ -47,7 +42,7 @@ export async function GET(request) {
       return nextRes;
     }
 
-    const results = data.data.results;
+    const results = data;
 
     if (results.length === 0) {
       return NextResponse.json(
@@ -63,11 +58,9 @@ export async function GET(request) {
     const processedData = {
       id: firstResult.id || "Unknown",
       name: firstResult.name || "Unknown",
-      url: firstResult.downloadUrl[4].url || "No URL", // Fixed: The correct song URL
-      image: firstResult.image[1].url || "No Image", // Use album image URL
-      primaryArtists: firstResult.artists.primary
-        ? firstResult.artists.primary.map((artist) => artist.name).join(", ")
-        : "Unknown", // Extract all artist names as a comma-separated string
+      url: firstResult.url || "No URL", // Fixed: The correct song URL
+      image: firstResult.image|| "No Image", // Use album image URL
+      primaryArtists: firstResult.primaryArtists || "Unknown",
     };
 
     return NextResponse.json(processedData);

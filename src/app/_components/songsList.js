@@ -2,40 +2,53 @@
 import { useState, useEffect, useCallback } from "react";
 import SongCard from "./songCard";
 
-export default function SongsList() {
+export default function SongsList({ apiUrl, externalQuery = "" }) {
+  const defaultApiUrl = "https://iodify-dev-backend.onrender.com/api"; // Default API URL
   const [songs, setSongs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedSong, setExpandedSong] = useState(null); // Track expanded song
 
+  useEffect(() => {
+    if (externalQuery) {
+      setSearchQuery(externalQuery);
+    }
+  }, [externalQuery]);
+
   // Function to fetch songs (with debounce)
   const fetchSongs = useCallback(async (query = "") => {
     try {
       setLoading(true);
       setError(null);
-
+  
+      const baseUrl = apiUrl || defaultApiUrl; // Use provided apiUrl or default
+  
+      // Determine query format based on apiUrl
       const url = query
-        ? `https://iodify-dev-backend.onrender.com/api/search?q=${query}`
-        : `https://iodify-dev-backend.onrender.com/api/songs`;
-
+        ? apiUrl 
+          ? `${baseUrl}/global-search?query=${encodeURIComponent(query)}` 
+          : `${baseUrl}/search?q=${encodeURIComponent(query)}`
+        : `${baseUrl}/songs`;
+  
       const response = await fetch(url);
       const data = await response.json();
-
+  
       setSongs(data);
     } catch (err) {
       setError("Failed to load songs.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [apiUrl]);
+  
 
   // Load all songs on mount
   useEffect(() => {
     fetchSongs();
   }, [fetchSongs]);
 
-  // Handle search with debounce (delay API calls)
+  // Handle search with debounce
   useEffect(() => {
     const delaySearch = setTimeout(() => {
       fetchSongs(searchQuery);
