@@ -1,17 +1,20 @@
 "use client";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause } from "lucide-react";
 import Image from "next/image";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { usePlayer } from "@/hooks/usePlayer"; // Use Global Player hook
 
 export default function SongCard({ song, isExpanded, onExpand }) {
-  const { isPlaying, togglePlayPause, setAudioSrc } = useAudioPlayer();
+  const { currentSong, playSong, togglePlayPause, isPlaying } = usePlayer();
 
   const handlePlay = (e) => {
     e.stopPropagation(); // Prevents triggering expand when clicking play button
-    setAudioSrc(song.url);
-    togglePlayPause();
+
+    if (currentSong?.name === song.name) {
+      togglePlayPause(); // Pause if the same song is playing
+    } else {
+      playSong(song); // Play a new song
+    }
   };
 
   return (
@@ -22,10 +25,14 @@ export default function SongCard({ song, isExpanded, onExpand }) {
       onClick={onExpand}
     >
       {/* Mobile View (Collapsed) */}
-      <div className="flex items-center w-full ">
+      <div className="flex items-center w-full">
         <h2 className="text-lg font-bold flex-1 truncate">{song.name}</h2>
         <Button onClick={handlePlay} variant="outline" className="ml-2">
-          {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+          {currentSong?.name === song.name && isPlaying ? (
+            <Pause className="h-6 w-6" />
+          ) : (
+            <Play className="h-6 w-6" />
+          )}
         </Button>
       </div>
 
@@ -42,8 +49,12 @@ export default function SongCard({ song, isExpanded, onExpand }) {
           <h2 className="text-xl font-bold text-center">{song.name}</h2>
           <p className="text-center text-gray-600">{song.primaryArtists}</p>
           <Button onClick={handlePlay} variant="outline" className="w-full">
-            {isPlaying ? <Pause className="h-6 w-6 mr-2" /> : <Play className="h-6 w-6 mr-2" />}
-            {isPlaying ? "Pause" : "Play"}
+            {currentSong?.name === song.name && isPlaying ? (
+              <Pause className="h-6 w-6 mr-2" />
+            ) : (
+              <Play className="h-6 w-6 mr-2" />
+            )}
+            {currentSong?.name === song.name && isPlaying ? "Pause" : "Play"}
           </Button>
         </div>
       )}

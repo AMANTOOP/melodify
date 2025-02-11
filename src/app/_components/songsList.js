@@ -17,36 +17,38 @@ export default function SongsList({ apiUrl, externalQuery = "" }) {
   }, [externalQuery]);
 
   // Function to fetch songs (with debounce)
-  const fetchSongs = useCallback(async (query = "") => {
-    try {
-      setLoading(true);
-      setError(null);
-  
-      const baseUrl = apiUrl || defaultApiUrl; // Use provided apiUrl or default
-  
-      // Determine query format based on apiUrl
-      const url = query
-        ? apiUrl 
-          ? `${baseUrl}/global-search?query=${encodeURIComponent(query)}` 
-          : `${baseUrl}/search?q=${encodeURIComponent(query)}`
-        : `${baseUrl}/songs`;
-  
-      const response = await fetch(url);
-      const data = await response.json();
-  
-      setSongs(data);
-    } catch (err) {
-      setError("Failed to load songs.");
-    } finally {
-      setLoading(false);
-    }
-  }, [apiUrl]);
-  
+  const fetchSongs = useCallback(
+    async (query = "") => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const baseUrl = apiUrl || defaultApiUrl; // Use provided apiUrl or default
+
+        // Determine query format based on apiUrl
+        const url = query
+          ? apiUrl
+            ? `${baseUrl}/global-search?query=${encodeURIComponent(query)}`
+            : `${baseUrl}/search?q=${encodeURIComponent(query)}`
+          : `${baseUrl}/songs`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        setSongs(data);
+      } catch (err) {
+        setError("Failed to load songs.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiUrl]
+  );
 
   // Load all songs on mount
-  useEffect(() => {
-    fetchSongs();
-  }, [fetchSongs]);
+  // useEffect(() => {
+  //   fetchSongs();
+  // }, [fetchSongs]);
 
   // Handle search with debounce
   useEffect(() => {
@@ -76,18 +78,26 @@ export default function SongsList({ apiUrl, externalQuery = "" }) {
       {/* Loading & Error Handling */}
       {loading && <p className="text-center text-gray-500">Loading...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
-      {!loading && songs.length === 0 && <p className="text-center text-gray-500">No songs found.</p>}
+      {!loading && songs.length === 0 && (
+        <p className="text-center text-gray-500">No songs found.</p>
+      )}
 
       {/* Display Songs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {songs.map((song) => (
-          <SongCard
-            key={song.id}
-            song={song}
-            isExpanded={expandedSong === song.id}
-            onExpand={() => handleExpand(song.id)}
-          />
-        ))}
+        {songs.length > 0 ? (
+          songs.map((song) => (
+            <SongCard
+              key={song.id}
+              song={song}
+              isExpanded={expandedSong === song.id}
+              onExpand={() => handleExpand(song.id)}
+            />
+          ))
+        ) : (
+          <p className="text-center text-red-500 col-span-full">
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
