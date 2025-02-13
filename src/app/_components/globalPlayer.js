@@ -40,7 +40,13 @@ const GlobalPlayer = () => {
     if (duration > 0) {
       setProgress((currentTime / duration) * 100);
     }
+  
+    // Check if the song has ended
+    if (currentTime >= duration && duration > 0) {
+      playNext(); // Call function to play the next song
+    }
   }, [currentTime, duration]);
+  
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
