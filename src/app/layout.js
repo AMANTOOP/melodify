@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "./_components/navbar";
 import { PlayerProvider } from "@/hooks/usePlayer";
 import GlobalPlayer from "./_components/globalPlayer";
+import { Toaster } from "react-hot-toast";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +37,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
       >
         <Navbar />
+        <Toaster />
         {children}
 
         <GlobalPlayer />

@@ -8,6 +8,7 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer"
 import SongsList from "@/app/_components/songsList";
 
 export default function VoiceAssistant() {
+  const url = process.env.NEXT_PUBLIC_GLOBAL_API_URL; 
   const [query, setQuery] = useState("")
   const [songData, setSongData] = useState(null)
 
@@ -50,7 +51,7 @@ export default function VoiceAssistant() {
       {isLoading && <p>Searching...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {query && (
-        <SongsList apiUrl="https://iodify-dev-backend.onrender.com/api" externalQuery={query} />
+        <SongsList apiUrl={url} externalQuery={query} />
       )}
     </div>
     </div>)

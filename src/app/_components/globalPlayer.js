@@ -10,8 +10,12 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
+  ListOrdered,
+  CircleMinus,
+
 } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 const GlobalPlayer = () => {
   const {
@@ -23,8 +27,14 @@ const GlobalPlayer = () => {
     currentTime,
     isMuted,
     toggleMute,
+    queue,
+    playNext,
+    removeFromQueue,
+    playSong,
+    removeFromQueueWithId
   } = usePlayer();
   const [progress, setProgress] = useState(0);
+  const [showQueue, setShowQueue] = useState(false);
 
   useEffect(() => {
     if (duration > 0) {
@@ -41,7 +51,7 @@ const GlobalPlayer = () => {
   return (
     <div className="fixed bottom-0 left-0 w-full bg-neutral-900 text-white p-4">
       <div className="max-w-screen-xl mx-auto flex items-center justify-between">
-        {/* Mobile View: Only Image, Title & Controls */}
+        {/* Mobile View */}
         <div className="flex items-center w-full md:hidden">
           <Image
             src={currentSong?.image || "/vercel.svg"}
@@ -94,50 +104,37 @@ const GlobalPlayer = () => {
             >
               {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
             </button>
+            <button onClick={() => setShowQueue(!showQueue)} variant="outline" size="sm">
+                <ListOrdered size={20} />
+            </button>
           </div>
         </div>
 
-        {/* PC View: Full UI */}
-        <div className="hidden md:flex items-center justify-between w-full">
+
+        {/* Desktop View */}
+        <div className="hidden md:flex items-center justify-between p-4">
           <div className="flex items-center space-x-4">
             <Image
               src={currentSong?.image || "/placeholder.svg"}
               alt={currentSong?.name || "Album cover"}
               width={56}
               height={56}
-              className="rounded-md "
+              className="rounded-md"
             />
             <div>
-              <h3 className="font-semibold">
-                {currentSong?.name || "No song playing"}
-              </h3>
-              <p className="text-sm text-gray-400">
-                {currentSong?.primaryArtists || "Unknown artist"}
-              </p>
+              <h3 className="font-semibold">{currentSong?.name || "No song playing"}</h3>
+              <p className="text-sm text-gray-400">{currentSong?.primaryArtists || "Unknown artist"}</p>
             </div>
           </div>
           <div className="flex flex-col items-center space-y-2 flex-grow max-w-md mx-4">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => seek(-10)}
-                className="text-gray-400 hover:text-white"
-              >
+              <button onClick={() => seek(-10)} className="text-gray-400 hover:text-white">
                 <SkipBack size={20} />
               </button>
-              <button
-                onClick={togglePlayPause}
-                className="text-white hover:scale-110 transition"
-              >
-                {isPlaying ? (
-                  <PauseCircle size={40} />
-                ) : (
-                  <PlayCircle size={40} />
-                )}
+              <button onClick={togglePlayPause} className="text-white hover:scale-110 transition">
+                {isPlaying ? <PauseCircle size={40} /> : <PlayCircle size={40} />}
               </button>
-              <button
-                onClick={() => seek(10)}
-                className="text-gray-400 hover:text-white"
-              >
+              <button onClick={() => seek(10)} className="text-gray-400 hover:text-white">
                 <SkipForward size={20} />
               </button>
             </div>
@@ -150,7 +147,7 @@ const GlobalPlayer = () => {
                 className="flex-grow"
                 onValueChange={(value) => {
                   if (duration) {
-                    seek((value[0] / 100) * duration - currentTime);
+                    seek((value[0] / 100) * duration - currentTime)
                   }
                 }}
               />
@@ -158,13 +155,64 @@ const GlobalPlayer = () => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Volume2 size={20} />
+            <button onClick={toggleMute} className="text-gray-400 hover:text-white">
+              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+            </button>
             <Slider defaultValue={[100]} max={100} step={1} className="w-24" />
+            <button onClick={() => setShowQueue(!showQueue)} variant="outline" size="sm">
+              {showQueue ? "Hide Queue" : "Show Queue"}
+            </button>
+            <button onClick={() => playNext()} variant="outline" size="sm">
+              next
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Queue Display */}
+      {showQueue && (
+        <div
+          className={`fixed bottom-[70px] left-0 w-full bg-neutral-800 overflow-y-auto transition-all duration-300 ease-in-out ${showQueue ? "max-h-[60vh]" : "max-h-0"}`}
+        >
+          <div className="max-w-screen-xl mx-auto p-4">
+            <h4 className="font-semibold mb-2">Queue</h4>
+            {queue.length === 0 ? (
+              <p className="text-gray-400">Queue is empty</p>
+            ) : (
+              <ul className="space-y-2">
+                {queue.slice().reverse().map((song, index) => (
+                  <div className="flex justify-between">
+                  <li key={`${song.id}-${index}`} className="flex items-center justify-between"
+                  onClick={() => {
+                    playSong(song); // Play song when clicking anywhere in the list item
+                    removeFromQueueWithId(song.id); // Remove from queue when clicked
+                  }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Image
+                        src={song.image || "/placeholder.svg"}
+                        alt={song.name}
+                        width={40}
+                        height={40}
+                        className="rounded-md"
+                      />
+                      <div>
+                        <p className="font-semibold text-sm">{song.name}</p>
+                        <p className="text-xs text-gray-400">{song.primaryArtists}</p>
+                      </div>
+                    </div>
+                  </li>
+                  <button onClick={() => removeFromQueueWithId(song.id)} variant="outline" size="sm">
+                      <CircleMinus size={20} />
+                    </button>
+                  </div>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default GlobalPlayer;
+}
+  export default GlobalPlayer; 

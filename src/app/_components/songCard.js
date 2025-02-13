@@ -1,16 +1,17 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, CirclePlus } from "lucide-react";
 import Image from "next/image";
 import { usePlayer } from "@/hooks/usePlayer"; // Use Global Player hook
 
 export default function SongCard({ song, isExpanded, onExpand }) {
-  const { currentSong, playSong, togglePlayPause, isPlaying } = usePlayer();
+  const { currentSong, playSong, togglePlayPause, isPlaying, addToQueue } =
+    usePlayer();
 
   const handlePlay = (e) => {
     e.stopPropagation(); // Prevents triggering expand when clicking play button
 
-    if (currentSong?.name === song.name) {
+    if (currentSong?.id === song.id) {
       togglePlayPause(); // Pause if the same song is playing
     } else {
       playSong(song); // Play a new song
@@ -28,12 +29,24 @@ export default function SongCard({ song, isExpanded, onExpand }) {
       <div className="flex items-center w-full">
         <h2 className="text-lg font-bold flex-1 truncate">{song.name}</h2>
         <Button onClick={handlePlay} variant="outline" className="ml-2">
-          {currentSong?.name === song.name && isPlaying ? (
+          {currentSong?.id === song.id && isPlaying ? (
             <Pause className="h-6 w-6" />
           ) : (
             <Play className="h-6 w-6" />
           )}
         </Button>
+        <Button
+  onClick={(event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    addToQueue(song);
+  }}
+  variant="outline"
+  className="m-2 transition-transform duration-200 active:scale-95"
+>
+  <CirclePlus className="h-6 w-6" />
+</Button>
+
       </div>
 
       {/* Expanded View (Full Card) */}
@@ -49,12 +62,12 @@ export default function SongCard({ song, isExpanded, onExpand }) {
           <h2 className="text-xl font-bold text-center">{song.name}</h2>
           <p className="text-center text-gray-600">{song.primaryArtists}</p>
           <Button onClick={handlePlay} variant="outline" className="w-full">
-            {currentSong?.name === song.name && isPlaying ? (
+            {currentSong?.id === song.id && isPlaying ? (
               <Pause className="h-6 w-6 mr-2" />
             ) : (
               <Play className="h-6 w-6 mr-2" />
             )}
-            {currentSong?.name === song.name && isPlaying ? "Pause" : "Play"}
+            {currentSong?.id === song.id && isPlaying ? "Pause" : "Play"}
           </Button>
         </div>
       )}
