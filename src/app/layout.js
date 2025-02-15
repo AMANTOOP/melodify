@@ -4,6 +4,9 @@ import Navbar from "./_components/navbar";
 import { PlayerProvider } from "@/hooks/usePlayer";
 import GlobalPlayer from "./_components/globalPlayer";
 import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "../context/authContext";
+import { PlaylistProvider } from "../context/playlistProvider"
+import HomePopup from "./_components/homePopup"
 
 
 const geistSans = Geist({
@@ -34,13 +37,18 @@ export default function RootLayout({ children }) {
     <PlayerProvider>
     <html lang="en">
       <body 
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100`}
       >
+        <PlaylistProvider>
+        <AuthProvider>
         <Navbar />
         <Toaster />
+        <HomePopup /> {/* Show popup on first visit */}
         {children}
 
         <GlobalPlayer />
+        </AuthProvider>
+        </PlaylistProvider>
       </body>
     </html>
     </PlayerProvider>

@@ -1,15 +1,20 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, CirclePlus } from "lucide-react";
+import { Play, Pause, CirclePlus, Bookmark } from "lucide-react";
 import Image from "next/image";
 import { usePlayer } from "@/hooks/usePlayer"; // Use Global Player hook
+import {AddToPlaylistDialog} from "./addToPlaylistDialog";
+import AuthContext from "@/context/authContext"; // Import custom hook
+import { useContext } from "react";
 
 export default function SongCard({ song, isExpanded, onExpand }) {
   const { currentSong, playSong, togglePlayPause, isPlaying, addToQueue } =
     usePlayer();
+    const { isLoggedIn, user, logout } = useContext(AuthContext); // ✅ Use custom hook
 
   const handlePlay = (e) => {
     e.stopPropagation(); // Prevents triggering expand when clicking play button
+    console.log({song});
 
     if (currentSong?.id === song.id) {
       togglePlayPause(); // Pause if the same song is playing
@@ -36,17 +41,18 @@ export default function SongCard({ song, isExpanded, onExpand }) {
           )}
         </Button>
         <Button
-  onClick={(event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    addToQueue(song);
-  }}
-  variant="outline"
-  className="m-2 transition-transform duration-200 active:scale-95"
->
-  <CirclePlus className="h-6 w-6" />
-</Button>
-
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            addToQueue(song);
+          }}
+          variant="outline"
+          className="m-2 transition-transform duration-200 active:scale-95"
+        >
+          <CirclePlus className="h-6 w-6" />
+        </Button>
+        {isLoggedIn && ( <AddToPlaylistDialog songId={song.id} /> )}
+        
       </div>
 
       {/* Expanded View (Full Card) */}

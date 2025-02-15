@@ -7,6 +7,7 @@ v1.3(current)
 ✅Adding player queue in global player
 ✅Fix bug in player with same name songs
 
-v1.4(upcoming)
-Update navbar
-Implement user system & playlist creation
+✅v1.4(upcoming)
+Update navbar,
+Implement user system & playlist creation,
+ui update
