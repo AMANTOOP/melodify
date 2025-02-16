@@ -4,12 +4,14 @@ import { useState, useEffect } from "react"
 import { usePlaylists } from "@/context/playlistProvider"
 import SongsList from "../_components/songsListInPlaylist"
 import { usePlayer } from "@/hooks/usePlayer";
+import { Trash2 } from "lucide-react";
+import  toast  from "react-hot-toast";
 
 export default function Playlists() {
   const { playlists, fetchPlaylists, createPlaylist, deletePlaylist, error } = usePlaylists()
   const [newPlaylistName, setNewPlaylistName] = useState("")
   const [loading, setLoading] = useState(true)
-  const { playSong, addToQueue, queue } = usePlayer()
+  const { playSong, addToQueue, queue, setQueue, playNext, setCurrentSong, currentSong, setIsPlaying } = usePlayer()
   const [expandedPlaylist, setExpandedPlaylist] = useState(null); // Track expanded playlist
 
   // const fetchSongs = async () => {
@@ -47,43 +49,54 @@ export default function Playlists() {
 
   const handlePlayAll = async (songIds) => {
     if (songIds.length === 0) return;
-  
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("User not authenticated");
-        return;
-      }
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKUP_API_URL}/songs`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ songIds }), // Send song IDs to fetch full details
-      });
-  
-      console.log("Response Status:", response.status); // Log status
-  
-      if (response.ok) {
-        const fetchedSongs = await response.json();
-        console.log("Fetched Songs:", fetchedSongs); // Log fetched song data
-        
-        queue.length = 0;
 
-        // Add fetched songs to queue and play the first one
-        fetchedSongs.forEach((song) => addToQueue(song));
-        playSong(fetchedSongs[0]); // Play first song
-      } else {
-        const errorMessage = await response.text();
-        setError(`Failed to fetch songs: ${errorMessage}`);
-      }
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setError("User not authenticated");
+            return;
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKUP_API_URL}/songs`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ songIds }), // Send song IDs to fetch full details
+        });
+
+        console.log("Response Status:", response.status); // Log status
+
+        if (response.ok) {
+            const fetchedSongs = await response.json();
+            console.log("Fetched Songs:", fetchedSongs); // Log fetched song data
+            
+            queue.length = 0; // Clear queue before adding new songs
+
+            if (fetchedSongs.length === 0) return;
+
+            // Play the first song and wait for it to start
+            if(currentSong == null)setCurrentSong(true);    
+            await playSong(fetchedSongs[0]);
+            setIsPlaying(true);
+
+            // Sequentially add the rest of the songs to the queue
+            setQueue((prevQueue) => [
+              ...prevQueue, 
+              ...fetchedSongs.slice(1) // Add remaining songs to queue
+          ]);
+          toast.success("Playlist playing!");
+        } else {
+            const errorMessage = await response.text();
+            setError(`Failed to fetch songs: ${errorMessage}`);
+        }
     } catch (err) {
-      setError("An error occurred while fetching songs");
-      console.error("Fetch Error:", err);
+        // setError("An error occurred while fetching songs");
+        console.error("Fetch Error:", err);
     }
-  };
+};
+
   
 
   const togglePlaylist = (playlistId) => {
@@ -101,20 +114,34 @@ export default function Playlists() {
   }, [])
 
   const handleCreatePlaylist = async (e) => {
-    e.preventDefault()
-    if (!newPlaylistName.trim()) return
-    await createPlaylist(newPlaylistName)
-    setNewPlaylistName("")
-    await fetchPlaylists() // Refresh playlists after creating
-  }
+    e.preventDefault();
+    const trimmedName = newPlaylistName.trim();
+
+    if (!trimmedName) return;
+
+    // Check if playlist name already exists
+    const isDuplicate = playlists.some((playlist) => playlist.name.toLowerCase() === trimmedName.toLowerCase());
+
+    if (isDuplicate) {
+        toast.error("Playlist name already taken! Choose a different name.");
+        return;
+    }
+
+    await createPlaylist(trimmedName);
+    setNewPlaylistName("");
+    await fetchPlaylists(); // Refresh playlists after creating
+    toast.success("Playlist created successfully!");
+};
+
 
   const handleDeletePlaylist = async (playlistId) => {
     await deletePlaylist(playlistId)
     await fetchPlaylists() // Refresh playlists after deleting
+    toast.success("Playlist deleted successfully!");
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto p-4 overflow-y-auto max-h-[75vh]">
       <h1 className="text-2xl font-bold mb-4">Your Playlists</h1>
       
       <form onSubmit={handleCreatePlaylist} className="mb-6">
@@ -140,7 +167,7 @@ export default function Playlists() {
       ) : playlists.length === 0 ? (
         <p className="text-gray-500">No playlists found. Create one!</p>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
       {playlists.map((playlist) => (
         <div key={playlist._id} className="border rounded-md p-4">
           {/* Playlist Header */}
@@ -164,7 +191,7 @@ export default function Playlists() {
                 onClick={() => handleDeletePlaylist(playlist._id)}
                 className="text-red-500 hover:text-red-700"
               >
-                Delete
+                <Trash2 />
               </button>
             </div>
           </div>

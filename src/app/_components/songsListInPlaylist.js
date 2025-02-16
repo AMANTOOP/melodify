@@ -70,6 +70,7 @@ export default function SongsList({ songIds, playlistId, fetchPlaylists }) {
           onExpand={() =>
             setExpandedSong(expandedSong === song.id ? null : song.id)
           }
+          playlistId={playlistId}
         />
       ))}
     </ul>

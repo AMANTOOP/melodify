@@ -52,14 +52,28 @@ export const PlayerProvider = ({ children }) => {
   }, []);
 
   // Play a Song
-  const playSong = (songData) => {
+  const playSong = async (songData) => {
     if (!audioRef.current) return;
 
-    setCurrentSong(songData); // Store song data
-    audioRef.current.src = songData.url;
-    audioRef.current.play().catch((error) => console.error("Play error:", error));
-    setIsPlaying(true);
-  };
+    try {
+        // Pause the current song if it's playing
+        await audioRef.current.pause();
+
+        // Set the new song source and load it
+        audioRef.current.src = songData.url;
+        await audioRef.current.load(); // Ensures the song is properly loaded
+
+        // Update state before playing
+        setCurrentSong(songData);
+        setIsPlaying(true);
+
+        // Play the song after loading
+        await audioRef.current.play();
+    } catch (error) {
+        console.error("Play error:", error);
+    }
+};
+
 
   // Toggle Play / Pause
   const togglePlayPause = () => {
@@ -88,29 +102,49 @@ export const PlayerProvider = ({ children }) => {
   };
 
   // ✅ Add Song to Queue
-  const addToQueue = (song) => {
-    if (!currentSong) {
-      playSong(song);
-      return;
-    }
-  
-    setQueue((prevQueue) => {
-      const isAlreadyInQueue = prevQueue.some((queuedSong) => queuedSong.id === song.id);
-  
-      if (isAlreadyInQueue || currentSong?.id === song.id) {
-        return prevQueue; // Do not modify queue if song already exists
-      }
-  
-      return [...prevQueue, song]; // Add song if it's not in queue
-    });
-  
-    // Show toast outside setQueue to ensure it triggers only once
-    if (currentSong?.id === song.id || queue.some((s) => s.id === song.id)) {
-      toast.error("Song is already in the queue!");
-    } else {
-      toast.success("Song added to queue!");
-    }
+  const addToQueue = async (song) => {
+
+    const isPlaying = () => {
+      const audio = document.querySelector("audio"); // Adjust selector if needed
+      return audio && !audio.paused; // Returns true if the audio is playing
   };
+  
+    if (!currentSong) {
+        if (isPlaying()) {
+            console.log("A song is already playing, skipping play request.");
+            return;
+        }
+        
+        try {
+            await playSong(song); // Ensure first song plays before anything else
+        } catch (error) {
+            console.error("Error playing song:", error);
+            return;
+        }
+        return;
+    }
+
+    setQueue((prevQueue) => {
+        const isAlreadyInQueue = prevQueue.some((queuedSong) => queuedSong.id === song.id);
+
+        if (isAlreadyInQueue || currentSong?.id === song.id) {
+            return prevQueue; // Prevent duplicate songs in the queue
+        }
+
+        return [...prevQueue, song];
+    });
+
+    // Wait a bit for state update before checking queue
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    if (currentSong?.id === song.id || queue.some((s) => s.id === song.id)) {
+        toast.error("Song is already in the queue!");
+    } else {
+        toast.success("Song added to queue!");
+    }
+};
+
+
   
   
 
@@ -140,10 +174,12 @@ export const PlayerProvider = ({ children }) => {
     <PlayerContext.Provider
       value={{
         currentSong,
+        setCurrentSong,
         playSong,
         togglePlayPause,
         seek,
         isPlaying,
+        setIsPlaying,
         duration,
         currentTime,
         isMuted,
@@ -152,6 +188,7 @@ export const PlayerProvider = ({ children }) => {
         playNext,
         removeFromQueue,
         queue,
+        setQueue,
         removeFromQueueWithId,
       }}
     >

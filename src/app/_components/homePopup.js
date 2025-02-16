@@ -1,16 +1,18 @@
 "use client"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import AuthContext from "@/context/authContext";
+import { usePathname } from "next/navigation";
 
 export default function HomePopup() {
   const [open, setOpen] = useState(false);
+  const { isLoggedIn, user, logout } = useContext(AuthContext); // ✅ Use custom hook
+  const pathname = usePathname();
 
   useEffect(() => {
-    const hasSeenPopup = localStorage.getItem("seenPopup");
-    if (!hasSeenPopup) {
-      setOpen(true); // Show popup
-      localStorage.setItem("seenPopup", "true"); // Mark as seen
+    if(!isLoggedIn && pathname === "/") {
+      setOpen(true);
     }
   }, []);
 

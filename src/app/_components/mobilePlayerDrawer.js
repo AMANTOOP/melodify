@@ -34,7 +34,6 @@ export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
     removeFromQueueWithId,
     currentTime,
     duration,
-
   } = usePlayer();
 
   const formatTime = (time) => {
@@ -115,29 +114,31 @@ export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
               </button>
               <button
                 onClick={playNext}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                className="transition-transform duration-150 ease-in-out active:scale-90 active:shadow-inner hover:scale-105 hover:shadow-lg"
               >
                 <SkipForward size={20} />
               </button>
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between w-full">
-                      <span className="text-xs">{formatTime(currentTime)}</span>
-                      <Slider
-                        value={[(currentTime / duration) * 100]}
-                        max={100}
-                        step={1}
-                        className="flex-grow"
-                        onValueChange={(value) => {
-                          if (duration) {
-                            seek((value[0] / 100) * duration - currentTime);
-                          }
-                        }}
-                      />
-                      <span className="text-xs">{formatTime(duration)}</span>
-                    </div>
+          <span className="text-xs">{formatTime(currentTime)}</span>
+          <Slider
+            value={[(currentTime / duration) * 100]}
+            max={100}
+            step={1}
+            className="flex-grow"
+            onValueChange={(value) => {
+              if (duration) {
+                seek((value[0] / 100) * duration - currentTime);
+              }
+            }}
+          />
+
+
+          <span className="text-xs">{formatTime(duration)}</span>
+        </div>
         {/* 📜 Queue Section */}
         <div className="mt-6 bg-neutral-800 p-3 rounded-lg max-h-60 overflow-y-auto">
           <h4 className="font-semibold text-center mb-2">Queue</h4>
@@ -145,43 +146,40 @@ export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
             <p className="text-gray-400 text-center">Queue is empty</p>
           ) : (
             <ul className="space-y-2">
-              {queue
-                .slice()
-                .reverse()
-                .map((song, index) => (
+              {queue.map((song, index) => (
+                <div
+                  key={`${song.id}-${index}`}
+                  className="flex justify-between items-center p-2 rounded-md hover:bg-neutral-700"
+                >
                   <div
-                    key={`${song.id}-${index}`}
-                    className="flex justify-between items-center p-2 rounded-md hover:bg-neutral-700"
+                    className="flex items-center space-x-2 flex-grow cursor-pointer"
+                    onClick={() => {
+                      playSong(song);
+                      removeFromQueueWithId(song.id);
+                    }}
                   >
-                    <div
-                      className="flex items-center space-x-2 flex-grow cursor-pointer"
-                      onClick={() => {
-                        playSong(song);
-                        removeFromQueueWithId(song.id);
-                      }}
-                    >
-                      <Image
-                        src={song.image || "/placeholder.svg"}
-                        alt={song.name}
-                        width={40}
-                        height={40}
-                        className="rounded-md"
-                      />
-                      <div>
-                        <p className="font-semibold text-sm">{song.name}</p>
-                        <p className="text-xs text-gray-400">
-                          {song.primaryArtists}
-                        </p>
-                      </div>
+                    <Image
+                      src={song.image || "/placeholder.svg"}
+                      alt={song.name}
+                      width={40}
+                      height={40}
+                      className="rounded-md"
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">{song.name}</p>
+                      <p className="text-xs text-gray-400">
+                        {song.primaryArtists}
+                      </p>
                     </div>
-                    <button
-                      onClick={() => removeFromQueueWithId(song.id)}
-                      className="text-gray-400 hover:text-white"
-                    >
-                      <CircleMinus size={20} />
-                    </button>
                   </div>
-                ))}
+                  <button
+                    onClick={() => removeFromQueueWithId(song.id)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <CircleMinus size={20} />
+                  </button>
+                </div>
+              ))}
             </ul>
           )}
         </div>

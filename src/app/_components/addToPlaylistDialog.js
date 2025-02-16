@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { usePlaylists } from "@/context/playlistProvider";
 import { Bookmark } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export function AddToPlaylistDialog({ songId }) {
   const { playlists, fetchPlaylists } = usePlaylists();
@@ -83,7 +84,8 @@ export function AddToPlaylistDialog({ songId }) {
             Add to Playlist
           </DialogTitle>
           <DialogDescription>
-            Select one playlist to add this song.
+            Select one playlist to add this song.<br></br>
+            No playlist? <Link href="/playlists" className="text-blue-600 border-blue-600">Create one here</Link>.
           </DialogDescription>
         </DialogHeader>
 
