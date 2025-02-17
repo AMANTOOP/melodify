@@ -70,3 +70,25 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.listening::before {
+  content: "";
+  position: absolute;
+  width: inherit;
+  height: inherit;
+  border-radius: inherit;
+  background-color: inherit;
+  z-index: -1;
+  animation: listening 1.3s infinite;
+}
+
+@keyframes listening {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+

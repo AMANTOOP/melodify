@@ -22,6 +22,12 @@ export const PlayerProvider = ({ children }) => {
   const audioRef = useRef(null);
 
   useEffect(() => {
+    if (currentSong) {
+      updateMediaSession();
+    }
+  }, [currentSong, isPlaying, queue]); // Update whenever song changes or play/pause state changes
+  
+  useEffect(() => {
     audioRef.current = new Audio();
 
     const handleLoadedMetadata = () => {
@@ -168,6 +174,37 @@ export const PlayerProvider = ({ children }) => {
   const removeFromQueueWithId = (songId) => {
     setQueue((prevQueue) => prevQueue.filter((song) => song.id !== songId));
   };
+
+  const updateMediaSession = () => {
+    if (!("mediaSession" in navigator) || !currentSong) return;
+  
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: currentSong?.name || "Unknown",
+      artist: currentSong?.primaryArtists || "Unknown",
+      artwork: [
+        { src: currentSong?.image || "/default-cover.jpg", sizes: "512x512", type: "image/jpg" }
+      ]
+    });
+  
+    // Set media controls to sync with your app
+    navigator.mediaSession.setActionHandler("play", () => {
+      togglePlayPause();
+    });
+  
+    navigator.mediaSession.setActionHandler("pause", () => {
+      togglePlayPause();
+    });
+    
+    if(queue.length > 0){
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      playNext();
+    });
+  }
+  
+    // If you plan to support previous track functionality, implement it
+    // navigator.mediaSession.setActionHandler("previoustrack", playPrevious);
+  };
+  
   
 
   return (
@@ -190,6 +227,8 @@ export const PlayerProvider = ({ children }) => {
         queue,
         setQueue,
         removeFromQueueWithId,
+        updateMediaSession,
+
       }}
     >
       {children}

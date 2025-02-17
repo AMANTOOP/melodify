@@ -32,6 +32,7 @@ const GlobalPlayer = () => {
     removeFromQueue,
     playSong,
     removeFromQueueWithId,
+    updateMediaSession,
   } = usePlayer();
   const [progress, setProgress] = useState(0);
   const [showQueue, setShowQueue] = useState(false);
@@ -48,6 +49,9 @@ const GlobalPlayer = () => {
     }
   }, [currentTime, duration]);
 
+  useEffect(() =>{
+    updateMediaSession();
+  },[currentSong]);
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);

@@ -6,6 +6,7 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition"
 import { useJioSaavnAPI } from "@/hooks/useJioSaavnAPI"
 import { useAudioPlayer } from "@/hooks/useAudioPlayer"
 import SongsList from "@/app/_components/songsList";
+import MicButton from "@/app/_components/voiceButton";
 
 export default function VoiceAssistant() {
   const url = process.env.NEXT_PUBLIC_GLOBAL_API_URL; 
@@ -38,13 +39,7 @@ export default function VoiceAssistant() {
   return (
     (
       <div className="flex flex-col items-center space-y-4 w-full bg-gray-100">
-        <Button
-        onClick={toggleListening}
-        variant="outline"
-        size="icon"
-        className="w-12 h-12">
-        {isListening ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
-      </Button>
+        <MicButton toggleListening={toggleListening} isListening={isListening} />
     <div className=" min-h-[500px] max-h-[80vh] overflow-y-auto">
       
       <p className="text-lg text-center">{query || "Say a song name, artist, or album to start playing music!"}</p>
