@@ -1,10 +1,10 @@
 "use client";
-import { useContext } from "react";
+import { useContext, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import AuthContext from "@/context/authContext";
 import Chat from "../_components/chat";
 
-const ChatPage = () => {
+const ChatPageContent = () => {
   const { user } = useContext(AuthContext);
   const searchParams = useSearchParams();
   const otherUserId = searchParams.get("user"); // Get the selected user from query params
@@ -16,6 +16,14 @@ const ChatPage = () => {
     <div className="flex flex-col overflow-y-auto max-h-[75vh]">
       <Chat currentUser={user._id} otherUser={otherUserId} />
     </div>
+  );
+};
+
+const ChatPage = () => {
+  return (
+    <Suspense fallback={<p className="text-gray-500">Loading chat...</p>}>
+      <ChatPageContent />
+    </Suspense>
   );
 };
 
