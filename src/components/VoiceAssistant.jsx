@@ -38,7 +38,7 @@ export default function VoiceAssistant() {
 
   return (
     (
-      <div className="flex flex-col items-center space-y-4 w-full bg-gray-100">
+      <div className="flex flex-col items-center space-y-4 w-full bg-gray-100 mb-[6rem]">
         <MicButton toggleListening={toggleListening} isListening={isListening} />
     <div className=" min-h-[500px] max-h-[80vh] overflow-y-auto">
       

@@ -7,24 +7,29 @@ export default function SongsList({ songIds, playlistId, fetchPlaylists }) {
   const [songs, setSongs] = useState([]);
   const [error, setError] = useState("");
   const [expandedSong, setExpandedSong] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!songIds) {
       setError("No song IDs provided");
+      setLoading(false);
       return;
     }
-    if(songIds.length === 0){
+    if (songIds.length === 0) {
       setError("No songs in this playlist");
+      setLoading(false);
       return;
     }
 
     console.log("Fetching songs for songIds:", songIds); // Debugging log
 
     const fetchSongs = async () => {
+      setLoading(true);
       try {
         const token = localStorage.getItem("token");
         if (!token) {
           setError("User not authenticated");
+          setLoading(false);
           return;
         }
 
@@ -50,12 +55,15 @@ export default function SongsList({ songIds, playlistId, fetchPlaylists }) {
       } catch (err) {
         setError("An error occurred while fetching songs");
         console.error("Fetch Error:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchSongs();
   }, [songIds]);
 
+  if (loading) return <p className="text-gray-500">Loading songs...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!songs.length)
     return <p className="text-gray-500">No songs in this playlist</p>;

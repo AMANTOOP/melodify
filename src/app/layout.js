@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "../context/authContext";
 import { PlaylistProvider } from "../context/playlistProvider"
 import HomePopup from "./_components/homePopup"
+import { RecommendationsProvider } from "@/context/recommendationContext";
 
 
 const geistSans = Geist({
@@ -40,6 +41,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100`}
       >
         <PlaylistProvider>
+        <RecommendationsProvider>
         <AuthProvider>
         <Navbar />
         <Toaster />
@@ -47,8 +49,11 @@ export default function RootLayout({ children }) {
         {children}
 
         <GlobalPlayer />
+        
         </AuthProvider>
+        </RecommendationsProvider>
         </PlaylistProvider>
+        
       </body>
     </html>
     </PlayerProvider>
