@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 
 export default function TrendingSongs() {
   const trendingUrl = `${process.env.NEXT_PUBLIC_API_URL}/trending`;
-  const searchApiUrl = `${process.env.NEXT_PUBLIC_GLOBAL_API_URL}/search?name=`;
 
   const [trendingSongs, setTrendingSongs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,7 +15,7 @@ export default function TrendingSongs() {
 
   useEffect(() => {
     setTrendingSongs([]); // Reset songs to avoid duplication on revisit
-    setOffset(0); // Reset offset
+    setOffset(1); // Reset offset
     fetchTrendingSongs(true);
   }, []);
 
@@ -27,38 +26,18 @@ export default function TrendingSongs() {
 
       const response = await fetch(`${trendingUrl}?offset=${isInitialLoad ? 0 : offset}&limit=${limit}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch trending songs");
+        throw new Error("Failed to fetch trending songs try searching a song!");
       }
 
-      const songNames = await response.json();
-      if (!Array.isArray(songNames) || songNames.length === 0) {
+      const songs = await response.json();
+      if (!(songs) || songs.length === 0) {
         throw new Error("No trending songs available");
       }
 
-      const fetchSongDetails = async (name) => {
-        try {
-          const searchResponse = await fetch(`${searchApiUrl}${encodeURIComponent(name)}`);
-          if (!searchResponse.ok) return null;
-          const results = await searchResponse.json();
-          return results?.[0] || null;
-        } catch {
-          return null;
-        }
-      };
+      setTrendingSongs((prevSongs) => [...prevSongs, ...songs]);
 
-      const songDetails = await Promise.all(songNames.map(async (name) => await fetchSongDetails(name)));
-
-      const uniqueSongs = Array.from(new Map(songDetails.map((song) => [song?.id, song])).values())
-        .filter(Boolean); // Remove null values
-
-      setTrendingSongs((prevSongs) => {
-        const existingIds = new Set(prevSongs.map((song) => song.id));
-        const newUniqueSongs = uniqueSongs.filter((song) => !existingIds.has(song.id));
-        return isInitialLoad ? uniqueSongs : [...prevSongs, ...newUniqueSongs];
-      });
-
-      await writeToDb(uniqueSongs); // Save only new songs to DB
-      setOffset((prevOffset) => prevOffset + limit);
+      await writeToDb(trendingSongs); // Save only new songs to DB
+      setOffset((prevOffset) => prevOffset + 1);
 
     } catch (err) {
       setError(err.message);
