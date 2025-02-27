@@ -14,7 +14,7 @@ const Message = () => {
         const fetchUsers = async () => {
         try {
             setIsLoading(true)
-            const res = await fetch("http://localhost:5000/api/users")
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`)//change this to .env
             if (!res.ok) {
             throw new Error("Failed to fetch users")
             }

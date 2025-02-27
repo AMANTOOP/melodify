@@ -9,7 +9,7 @@ const Chat = ({ currentUser, otherUser }) => {
 
   useEffect(() => {
     // Fetch chat history on mount
-    fetch(`http://localhost:5000/api/messages/${currentUser}/${otherUser}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages/${currentUser}/${otherUser}`)
       .then((res) => res.json())
       .then((data) => setMessages(data));
 
@@ -34,7 +34,7 @@ const Chat = ({ currentUser, otherUser }) => {
     const newMessage = { sender: currentUser, receiver: otherUser, message };
 
     try {
-      const res = await fetch("http://localhost:5000/api/messages/send", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newMessage),
@@ -56,7 +56,7 @@ const Chat = ({ currentUser, otherUser }) => {
     <div className="flex flex-col h-screen bg-gray-100">
       {/* Chat Header */}
       <div className="bg-green-500 text-white p-4 font-bold text-lg">
-        Chat with Them
+        Chat with {otherUser?.name}
       </div>
   
       {/* Chat Messages */}

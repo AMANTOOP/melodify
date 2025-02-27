@@ -2,13 +2,12 @@ import { Button } from "@/components/ui/button";
 import VoiceAssistant from "@/components/VoiceAssistant"; // Make sure this is correctly imported
 import { PlayerProvider } from "@/hooks/usePlayer";
 import Link from "next/link";
-import Carousel from "./_components/carousel";
-import TrendingSongs from "./_components/trendingSongs";
+import Carousel from "../_components/carousel";
 
 export default function Home() {
   return (
     <>
-      <TrendingSongs />
+      <VoiceAssistant />
       <Carousel />
       <main
         className="flex  flex-col items-center justify-center p-24 bg-gray-100 my-0"

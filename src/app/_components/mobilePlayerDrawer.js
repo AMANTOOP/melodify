@@ -19,6 +19,9 @@ import {
   CircleMinus,
 } from "lucide-react";
 import Image from "next/image";
+import { useContext } from "react";
+import { AddToPlaylistDialog } from "./addToPlaylistDialog";
+import AuthContext from "@/context/authContext"; // Import custom hook
 
 export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
   const {
@@ -35,6 +38,7 @@ export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
     currentTime,
     duration,
   } = usePlayer();
+  const { isLoggedIn, user, logout } = useContext(AuthContext);
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
@@ -55,7 +59,7 @@ export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
         </DrawerHeader>
 
         {/* 🔹 Now Playing Section */}
-        <div className="flex flex-col items-center space-y-4 p-6">
+        <div className="flex flex-col items-center space-y-3 p-6">
           <Image
             src={currentSong?.image || "/placeholder.svg"}
             alt={currentSong?.name || "Album cover"}
@@ -66,6 +70,14 @@ export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
           <h3 className="text-lg font-semibold">
             {currentSong?.name || "No song playing"}
           </h3>
+          <h2 className="text-sm font-semibold mt-0">
+            {
+              currentSong?.primaryArtists
+              ?.split(",") // Split if it's a comma-separated string
+              .slice(0, 2) // Take only the first 5 artists
+              .join(", ")
+            }
+          </h2>
 
           <div className="flex items-center justify-between w-full">
             {/* 🎶 Controls (Left-aligned) */}
@@ -118,6 +130,12 @@ export default function MobilePlayerDrawer({ isDrawerOpen, setIsDrawerOpen }) {
               >
                 <SkipForward size={20} />
               </button>
+              <button
+                className="transition-transform duration-150 ease-in-out active:scale-90 active:shadow-inner hover:scale-105 hover:shadow-lg bg-black text-black"
+              >
+                {(isLoggedIn && currentSong) && <AddToPlaylistDialog songId={currentSong.id} />}
+              </button>
+              
             </div>
           </div>
         </div>
