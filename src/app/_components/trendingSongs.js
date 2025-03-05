@@ -1,9 +1,22 @@
 "use client";
 import { useState, useEffect } from "react";
-import SongCard from "./songCard";
+import AnimatedList from "./AnimatedList1";
 import { Button } from "@/components/ui/button";
+import { usePlayer } from "@/hooks/usePlayer";
 
 export default function TrendingSongs() {
+  const { currentSong, playSong, togglePlayPause, isPlaying, addToQueue } =
+        usePlayer();
+  const handlePlay = (e, song) => {
+
+    if (currentSong?.id === song.id) {
+      togglePlayPause(); // Pause if the same song is playing
+    } else {
+      playSong(song); // Play a new song
+    }
+  };
+
+  
   const trendingUrl = `${process.env.NEXT_PUBLIC_API_URL}/trending`;
 
   const [trendingSongs, setTrendingSongs] = useState([]);
@@ -71,14 +84,11 @@ export default function TrendingSongs() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {trendingSongs.length > 0 ? (
-          trendingSongs.map((song) => (
-            <SongCard
-              key={song.id}
-              song={song}
-              isExpanded={expandedSong === song.id}
-              onExpand={() => setExpandedSong(expandedSong === song.id ? null : song.id)}
-            />
-          ))
+          <AnimatedList
+            songs={trendingSongs}
+            onItemSelect={(event, index) => handlePlay(event, trendingSongs[index])}
+            onAddToQueue={addToQueue}
+          />
         ) : !loading && !error ? (
           <p className="text-center col-span-full">No trending songs available.</p>
         ) : null}

@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch user");
+      if (!response.ok) throw Error("Failed to fetch user");
 
       const userData = await response.json();
       setUser(userData); // ✅ Store user info

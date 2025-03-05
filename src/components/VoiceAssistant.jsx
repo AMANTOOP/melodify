@@ -40,7 +40,7 @@ export default function VoiceAssistant() {
     (
       <div className="flex flex-col items-center space-y-4 w-full bg-gray-100 mb-[6rem]">
         <MicButton toggleListening={toggleListening} isListening={isListening} />
-    <div className=" min-h-[500px] max-h-[80vh] overflow-y-auto">
+    <div className=" min-h-[500px] max-h-[80vh] overflow-y-auto w-full min-w-[300px] max-w-full">
       
       <p className="text-lg text-center">{query || "Say a song name, artist, or album to start playing music!"}</p>
       {isLoading && <p>Searching...</p>}

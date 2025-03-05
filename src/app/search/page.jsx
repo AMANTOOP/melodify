@@ -3,12 +3,13 @@ import VoiceAssistant from "@/components/VoiceAssistant"; // Make sure this is c
 import { PlayerProvider } from "@/hooks/usePlayer";
 import Link from "next/link";
 import Carousel from "../_components/carousel";
+import CarouselDemo from "../_components/newCarousel";
 
 export default function Home() {
   return (
     <>
       <VoiceAssistant />
-      <Carousel />
+      <CarouselDemo />
       <main
         className="flex  flex-col items-center justify-center p-24 bg-gray-100 my-0"
         style={{ minHeight: "75vh" }}

@@ -16,7 +16,7 @@ import { Bookmark } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-export function AddToPlaylistDialog({ songId }) {
+export function AddToPlaylistDialog({ songId, children }) {
   const { playlists, fetchPlaylists } = usePlaylists();
   const [selectedPlaylist, setSelectedPlaylist] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,7 +76,9 @@ export function AddToPlaylistDialog({ songId }) {
         <Button variant="outline" onClick={(event) => {
             // event.preventDefault();
             event.stopPropagation();
-          }}> <Bookmark/> </Button>
+          }}> <Bookmark/> 
+          {children}
+          </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[450px] p-6">
         <DialogHeader>
