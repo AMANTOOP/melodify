@@ -23,10 +23,20 @@ export default function Carousel() {
   const [startX, setStartX] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const carouselRef = useRef(null);
+  const [cardWidth, setCardWidth] = useState(0);
 
   useEffect(() => {
     if (currentSong) fetchRecommendedSongs(currentSong.id);
   }, [currentSong]);
+
+  useEffect(() => {
+    if (carouselRef.current) {
+      const firstCard = carouselRef.current.querySelector("div");
+      if (firstCard) {
+        setCardWidth(firstCard.clientWidth + 16);
+      }
+    }
+  }, [recommendedSongs]);
 
   const nextSlide = () => {
     if (currentIndex < recommendedSongs.length - 1) {
@@ -78,12 +88,12 @@ export default function Carousel() {
         ref={carouselRef}
         className="flex gap-4 transition-transform duration-300 ease-in-out"
         style={{
-          transform: `translateX(-${currentIndex * 260}px)`, // Moves only one card at a time
+          transform: `translateX(-${currentIndex * cardWidth}px)`, // Moves only one card at a time
         }}
       >
         {recommendedSongs.length > 0 ? (
           recommendedSongs.map((song, index) => (
-            <div key={song.id} className="w-[250px] flex-shrink-0">
+            <div key={song.id} className="w-[100%] flex-shrink-0">
               <SongCard song={song} isExpanded={true} />
             </div>
           ))
